@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Waiting Room</title>
+
+    <style>
+
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:'Segoe UI',sans-serif;
+    }
+
+    body{
+        background:#f4f7fc;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        min-height:100vh;
+    }
+
+    .card{
+        width:700px;
+        background:white;
+        padding:40px;
+        border-radius:20px;
+        box-shadow:0 8px 20px rgba(0,0,0,0.08);
+        text-align:center;
+    }
+
+    h1{
+        color:#2563eb;
+        margin-bottom:20px;
+    }
+
+    .announcement{
+        background:#dbeafe;
+        color:#1e40af;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:20px;
+        font-weight:bold;
+    }
+
+    .box{
+        margin:20px 0;
+        padding:20px;
+        background:#f8fafc;
+        border-radius:12px;
+    }
+
+    .label{
+        font-size:18px;
+        color:#555;
+    }
+
+    .value{
+        font-size:48px;
+        font-weight:bold;
+        color:#2563eb;
+        margin-top:10px;
+    }
+
+    .status{
+        display:inline-block;
+        background:#dcfce7;
+        color:#15803d;
+        padding:10px 20px;
+        border-radius:20px;
+        font-weight:bold;
+        margin-top:10px;
+    }
+
+    .progress{
+        width:100%;
+        height:20px;
+        background:#e5e7eb;
+        border-radius:20px;
+        margin-top:15px;
+        overflow:hidden;
+    }
+
+    .progress-fill{
+        height:100%;
+        background:#2563eb;
+        border-radius:20px;
+        transition:0.5s;
+    }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+    <h1>🏥 Patient Waiting Room</h1>
+
+    <div class="announcement">
+        📢 Token {{ current_token }} please proceed to Doctor Room
+    </div>
+
+    <div class="box">
+        <div class="label">Current Patient</div>
+        <div class="value" style="font-size:32px;">
+        {{ current_patient }}
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="label">Current Token</div>
+        <div class="value">{{ current_token }}</div>
+    </div>
+
+    <div class="box">
+        <div class="label">Patients Ahead</div>
+        <div class="value">{{ tokens_ahead }}</div>
+    </div>
+
+    {% if tokens_ahead == 0 %}
+    <div class="box">
+        <h3 style="color:green;">
+        ✅ No Patients Waiting
+        </h3>
+    </div>
+    {% endif %}
+
+I
+
+    <div class="box">
+        <div class="label">Estimated Wait Time</div>
+        <div class="value">{{ wait_time }} Min</div>
+    </div>
+
+    <div class="box">
+        <div class="label">Queue Status</div>
+
+        <div class="status">
+            ● Active
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="label">Doctor Availability</div>
+
+        <div class="status">
+            🟢 Available
+        </div>
+    </div>
+
+    <div class="box">
+
+        <div class="label">
+            Queue Progress
+        </div>
+
+        <div class="progress">
+            <div class="progress-fill"
+                 style="width: {{ progress }}%;">
+            </div>
+        </div>
+        
+         <h3 style="margin-top:10px;">
+        {{ progress }}% Completed
+        </h3>
+    </div>
+
+</div>
+
+<!-- SocketIO Real Time Update -->
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+const socket = io();
+
+socket.on("connect", function(){
+    alert("Socket Connected");
+});
+
+socket.on("queue_updated", function(){
+    alert("Queue Updated Received");
+    location.reload();
+});
+</script>
+</body>
+</html>

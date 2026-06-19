@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Queue Cure Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+
+    <div class="header">
+
+        <div class="logo">
+            🏥 Queue Cure
+        </div>
+
+        <a href="/patient"
+           target="_blank"
+           class="patient-link">
+            Patient View
+        </a>
+
+    </div>
+
+    <!-- Analytics -->
+
+    <div class="analytics">
+
+        <div class="card">
+            <h3>Total Patients</h3>
+            <h1>{{ total_patients }}</h1>
+        </div>
+
+        <div class="card">
+            <h3>Completed</h3>
+            <h1>{{ completed_patients }}</h1>
+        </div>
+
+        <div class="card">
+            <h3>Waiting</h3>
+            <h1>{{ waiting_patients }}</h1>
+        </div>
+
+    </div>
+
+    <!-- Current Token -->
+
+    <div class="card token-box">
+
+        <h2>Current Token</h2>
+
+        <div class="token-number">
+            {{ current_token }}
+        </div>
+
+        <div class="status">
+            ● Active Queue
+        </div>
+
+        <br>
+
+        <a href="/call_next">
+            <button>
+                Call Next Patient
+            </button>
+        </a>
+
+    </div>
+<!-- Consultation Time -->
+
+<div class="card">
+
+    <h2>Average Consultation Time</h2>
+
+    <form action="/set_time" method="POST">
+
+        <input
+            type="number"
+            name="consultation_time"
+            value="{{ consultation_time }}"
+            min="1"
+            placeholder="Enter Minutes"
+            required
+        >
+
+        <button type="submit">
+            Save Time
+        </button>
+
+    </form>
+
+</div>
+
+    <!-- Add Patient -->
+
+    <div class="card">
+
+        <h2>Add New Patient</h2>
+
+        <form action="/add_patient" method="POST">
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Enter Patient Name"
+                required
+            >
+
+            <br><br>
+
+            <select
+                name="priority"
+                style="
+                width:100%;
+                padding:12px;
+                border:1px solid #ddd;
+                border-radius:8px;
+                "
+            >
+
+                <option value="Normal">
+                    Normal Patient
+                </option>
+
+                <option value="Emergency">
+                    🚨 Emergency Patient
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Generate Token
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Queue Table -->
+
+    <div class="card">
+
+        <h2>Today's Queue</h2>
+
+        <input
+            type="text"
+            id="search"
+            placeholder="Search Patient..."
+        >
+
+        <table>
+
+            <tr>
+
+                <th>Token No</th>
+                <th>Patient Name</th>
+                <th>Priority</th>
+                <th>Action</th>
+
+            </tr>
+
+            {% for patient in patients %}
+
+            <tr>
+
+                <td>{{ patient[1] }}</td>
+
+                <td>{{ patient[2] }}</td>
+
+                <td>
+
+                    {% if patient[3] == "Emergency" %}
+
+                    <span class="priority-emergency">
+                        🚨 Emergency
+                    </span>
+
+                    {% else %}
+
+                    <span class="priority-normal">
+                        ✅ Normal
+                    </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    <a
+                        href="/delete_patient/{{ patient[0] }}"
+                        onclick="return confirm('Delete this patient?')"
+                        style="
+                        color:red;
+                        text-decoration:none;
+                        font-weight:bold;
+                        "
+                    >
+                        Delete
+                    </a>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+const searchInput =
+document.getElementById("search");
+
+searchInput.addEventListener(
+"keyup",
+function(){
+
+    let filter =
+    searchInput.value.toLowerCase();
+
+    let rows =
+    document.querySelectorAll("table tr");
+
+    rows.forEach((row,index)=>{
+
+        if(index===0) return;
+
+        let text =
+        row.innerText.toLowerCase();
+
+        row.style.display =
+        text.includes(filter)
+        ? ""
+        : "none";
+
+    });
+
+});
+
+</script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+var socket = io();
+
+socket.on("queue_updated", function(){
+    location.reload();
+});
+</script>
+
+</body>
+</html>
